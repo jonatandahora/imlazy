@@ -1,0 +1,3 @@
+<div class="">
+  <%= link("Login in TvShowTime", to: auth_path(@conn, :validate))%>
+</div>
