@@ -14,6 +14,7 @@ defmodule Imlazy.Jobs do
 
         cond do
           episode_details.seen == false && !episode_details.network in ["Netflix", "Amazon"] ->
+            :timer.sleep(2000)
             magnet = Api.get_magnet_url(episode_details)
             System.cmd("transmission-gtk", [])
             System.cmd("transmission-remote-cli", [magnet])
