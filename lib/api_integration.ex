@@ -18,15 +18,17 @@ defmodule Imlazy.ApiIntegration do
   end
 
   def get_magnet_url(episode) do
+    :timer.sleep(2000)
     name = "#{episode.show.name}.S#{prepend_zero(episode.season_number)}E#{prepend_zero(episode.number)}"
 
     case Rarbg.get("?get_token=get_token") do
       {:ok, %HTTPoison.Response{body: body}} ->
+        :timer.sleep(2000)
         token = Poison.decode!(body, [keys: :atoms]).token
 
         case Rarbg.get("?sort=seeders&mode=search&search_tvdb=#{episode.show.id}&token=#{token}&search_string=#{name}") do
           {:ok, %HTTPoison.Response{body: body}} ->
-            torrents = Poison.decode!(body, [keys: :atoms]).torrent_results
+            torrents = Poison.decode!(body, [keys: :atoms])[:torrent_results]
             get_best_torrent(torrents)[:download]
           _ -> nil
         end
@@ -46,6 +48,8 @@ defmodule Imlazy.ApiIntegration do
     end
   end
 
+  def get_best_torrent([]), do: nil
+  def get_best_torrent(nil), do: nil
   def get_best_torrent(torrents) do
     grouped = Enum.group_by(torrents, &get_torrent_quality/1)
     cond do
