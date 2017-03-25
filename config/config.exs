@@ -36,8 +36,7 @@ config :imlazy, :tvshowtime,
 config :quantum, :imlazy,
   timezone: "America/Sao_Paulo",
   cron: [
-    "59 23 * * *": {Imlazy.Jobs, :add_new_episodes},
-    "30 1 * * *": {Imlazy.Jobs, :add_new_episodes}
+    "00 2 * * *": {Imlazy.Jobs, :add_new_episodes}
   ]
 
 # Import environment specific config. This must remain at the bottom
