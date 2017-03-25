@@ -29,7 +29,7 @@ defmodule Imlazy.ApiIntegration do
         case Rarbg.get("?sort=seeders&mode=search&search_tvdb=#{episode.show.id}&token=#{token}&search_string=#{name}") do
           {:ok, %HTTPoison.Response{body: body}} ->
             torrents = Poison.decode!(body, [keys: :atoms])[:torrent_results]
-            get_best_torrent(torrents)[:download]
+            {name, get_best_torrent(torrents)[:download]}
           _ -> nil
         end
       _ -> nil

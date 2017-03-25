@@ -1,6 +1,8 @@
 defmodule Imlazy.Jobs do
   alias Imlazy.ApiIntegration, as: Api
 
+  @download_folder Application.get_env(:imlazy, :download_folder)
+
   def add_new_episodes(date \\ nil) do
     for episode <- Api.to_watch() do
       [year, month, day] = String.split(episode.air_date, "-")
@@ -17,10 +19,14 @@ defmodule Imlazy.Jobs do
         cond do
           episode_details.seen == false && !episode_details.network in ["Netflix", "Amazon"] ->
             case Api.get_magnet_url(episode_details) do
-              nil -> nil
-              magnet ->
-                System.cmd("transmission-gtk", [])
-                System.cmd("transmission-remote-cli", [magnet])
+              {_, nil} -> nil
+              {name, magnet} ->
+                {found, 0} = System.cmd("find", ["-iname", "#{name}*"], [cd: @download_folder])
+                
+                unless found != "" do
+                  System.cmd("transmission-gtk", [])
+                  System.cmd("transmission-remote-cli", [magnet])
+                end
             end
           true -> nil
         end
