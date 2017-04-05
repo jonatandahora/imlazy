@@ -22,10 +22,11 @@ defmodule Imlazy.Jobs do
               {_, nil} -> nil
               {name, magnet} ->
                 {found, 0} = System.cmd("find", ["-iname", "#{name}*"], [cd: @download_folder])
-                
+
                 unless found != "" do
-                  System.cmd("transmission-gtk", [])
+                  System.cmd("transmission-daemon", [])
                   System.cmd("transmission-remote-cli", [magnet])
+                  "Added: #{name}"
                 end
             end
           true -> nil

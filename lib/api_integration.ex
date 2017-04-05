@@ -19,7 +19,7 @@ defmodule Imlazy.ApiIntegration do
 
   def get_magnet_url(episode) do
     :timer.sleep(2000)
-    name = "#{episode.show.name}.S#{prepend_zero(episode.season_number)}E#{prepend_zero(episode.number)}"
+    name = "#{dotify(episode.show.name)}.S#{prepend_zero(episode.season_number)}E#{prepend_zero(episode.number)}"
 
     case Rarbg.get("?get_token=get_token") do
       {:ok, %HTTPoison.Response{body: body}} ->
@@ -57,5 +57,10 @@ defmodule Imlazy.ApiIntegration do
       length(grouped["720p"] || []) > 0 -> List.first(grouped["720p"])
       true ->  List.first(grouped["HD"] || [])
     end
+  end
+
+  def dotify(string) do
+    String.replace(string, " ", ".")
+    |> String.replace("'", "")
   end
 end
