@@ -2,9 +2,10 @@ defmodule Imlazy.Jobs do
   alias Imlazy.ApiIntegration, as: Api
 
   @download_folder Application.get_env(:imlazy, :download_folder)
+  @watched_folder System.user_home()
 
   def add_new_episodes(date \\ nil) do
-    for episode <- Api.to_watch() do
+    magnets = for episode <- Api.to_watch() do
       [year, month, day] = String.split(episode.air_date, "-")
       |> Enum.map(fn(x)-> String.to_integer(x) end)
 
@@ -22,16 +23,16 @@ defmodule Imlazy.Jobs do
               {_, nil} -> nil
               {name, magnet} ->
                 {found, 0} = System.cmd("find", ["-iname", "#{name}*"], [cd: @download_folder])
-
-                unless found != "" do
-                  System.cmd("transmission-daemon", [])
-                  System.cmd("transmission-remote-cli", [magnet])
-                  "Added: #{name}"
-                end
+                unless found != "", do: magnet
             end
           true -> nil
         end
       end
+    end
+    |> Enum.filter(&(&1 != nil))
+
+    if length(magnets) > 0 do
+      File.write("#{@watched_folder}/imlazy.magnet", Enum.join(magnets, "\n"))
     end
   end
 end
