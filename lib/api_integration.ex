@@ -19,17 +19,18 @@ defmodule Imlazy.ApiIntegration do
 
   def get_magnet_url(episode) do
     :timer.sleep(2000)
-    name = "#{dotify(episode.show.name)}.S#{prepend_zero(episode.season_number)}E#{prepend_zero(episode.number)}"
+    full_name = "#{dotify(episode.show.name)}.S#{prepend_zero(episode.season_number)}E#{prepend_zero(episode.number)}"
+    number = "S#{prepend_zero(episode.season_number)}E#{prepend_zero(episode.number)}"
 
     case Rarbg.get("?get_token=get_token") do
       {:ok, %HTTPoison.Response{body: body}} ->
         :timer.sleep(2000)
         token = Poison.decode!(body, [keys: :atoms]).token
 
-        case Rarbg.get("?sort=seeders&mode=search&search_tvdb=#{episode.show.id}&token=#{token}&search_string=#{name}") do
+        case Rarbg.get("?sort=seeders&mode=search&search_tvdb=#{episode.show.id}&token=#{token}&search_string=#{number}") do
           {:ok, %HTTPoison.Response{body: body}} ->
             torrents = Poison.decode!(body, [keys: :atoms])[:torrent_results]
-            {name, get_best_torrent(torrents)[:download]}
+            {full_name, get_best_torrent(torrents)[:download]}
           _ -> nil
         end
       _ -> nil
