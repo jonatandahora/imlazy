@@ -9,11 +9,10 @@ defmodule Imlazy.Jobs do
       [year, month, day] = String.split(episode.air_date, "-")
       |> Enum.map(fn(x)-> String.to_integer(x) end)
 
-      {:ok, air_date} = Date.new(year, month, day)
-      today = Date.utc_today()
-      {:ok, yesterday} = Date.new(today.year, today.month, today.day - 1)
+      air_date = Timex.to_date({year, month, day})
+      today = Timex.now() |> Timex.to_date()
+      yesterday = Timex.shift(today, days: -1)
       date = date || yesterday
-
       if air_date >= date do
         episode_details = Api.episode(episode.id)
 

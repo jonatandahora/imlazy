@@ -18,7 +18,7 @@ defmodule Imlazy.Mixfile do
   # Type `mix help compile.app` for more information.
   def application do
     [mod: {Imlazy.Application, []},
-     extra_applications: [:logger, :httpoison, :quantum]]
+     extra_applications: [:logger, :httpoison, :quantum, :timex]]
   end
 
   # Specifies which paths to compile per environment.
@@ -38,7 +38,8 @@ defmodule Imlazy.Mixfile do
      {:gettext, "~> 0.11"},
      {:cowboy, "~> 1.0"},
      {:httpoison, "~> 0.11.0"},
-     {:quantum, ">= 1.9.0"}]
+     {:quantum, ">= 1.9.0"},
+     {:timex, "~> 3.0"}]
   end
 
   # Aliases are shortcuts or tasks specific to the current project.

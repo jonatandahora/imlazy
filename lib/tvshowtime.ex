@@ -1,7 +1,7 @@
 defmodule Imlazy.Tvshowtime do
   use HTTPoison.Base
   alias Imlazy.Api
-  Application.ensure_all_started(:imlazy) 
+  Application.ensure_all_started(:imlazy)
 
   @config Application.get_env(:imlazy, :tvshowtime)
   @access List.first(Api.list_access())
