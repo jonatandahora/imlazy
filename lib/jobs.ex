@@ -5,7 +5,7 @@ defmodule Imlazy.Jobs do
   @watched_folder System.user_home()
 
   def add_new_episodes(date \\ nil) do
-    magnets = for episode <- Api.to_watch() do
+    magnets = ParallelStream.map(Api.to_watch(), fn(episode) ->
       [year, month, day] = String.split(episode.air_date, "-")
       |> Enum.map(fn(x)-> String.to_integer(x) end)
 
@@ -27,7 +27,8 @@ defmodule Imlazy.Jobs do
           true -> nil
         end
       end
-    end
+    end)
+    |> Enum.into([])
     |> Enum.filter(&(&1 != nil))
 
     if length(magnets) > 0 do
