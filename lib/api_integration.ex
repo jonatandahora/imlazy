@@ -17,6 +17,14 @@ defmodule Imlazy.ApiIntegration do
     end
   end
 
+  def show(show_id) do
+    case Tvshowtime.get("/show?show_id=#{show_id}") do
+      {:ok, %HTTPoison.Response{body: body}} ->
+        Poison.decode!(body, [keys: :atoms]).show
+      _ -> nil
+    end
+  end
+
   def get_magnet_url(episode) do
     :timer.sleep(2000)
     full_name = "#{dotify(episode.show.name)}.S#{prepend_zero(episode.season_number)}E#{prepend_zero(episode.number)}"
