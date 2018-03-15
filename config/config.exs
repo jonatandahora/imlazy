@@ -8,7 +8,7 @@ use Mix.Config
 # General application configuration
 config :imlazy,
   ecto_repos: [Imlazy.Repo],
-  download_folder: "/mnt/A4D2DCAFD2DC8748/Séries"
+  download_folder: "/mnt/Dados/Séries"
 
 # Configures the endpoint
 config :imlazy, Imlazy.Web.Endpoint,

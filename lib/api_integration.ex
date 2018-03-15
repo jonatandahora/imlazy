@@ -1,6 +1,8 @@
 defmodule Imlazy.ApiIntegration do
   alias Imlazy.{Tvshowtime, Rarbg}
 
+  @download_folder Application.get_env(:imlazy, :download_folder)
+
   def to_watch() do
     case Tvshowtime.get("/to_watch") do
       {:ok, %HTTPoison.Response{body: body}} ->
@@ -11,7 +13,7 @@ defmodule Imlazy.ApiIntegration do
 
   def episode(episode_id) do
     case Tvshowtime.get("/episode?episode_id=#{episode_id}") do
-      {:ok, %HTTPoison.Response{body: body}} ->
+      {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
         Poison.decode!(body, [keys: :atoms]).episode
       _ -> nil
     end
@@ -26,22 +28,25 @@ defmodule Imlazy.ApiIntegration do
   end
 
   def get_magnet_url(episode) do
-    :timer.sleep(2000)
-    full_name = "#{dotify(episode.show.name)}.S#{prepend_zero(episode.season_number)}E#{prepend_zero(episode.number)}"
     number = "S#{prepend_zero(episode.season_number)}E#{prepend_zero(episode.number)}"
+    full_name = "#{dotify(episode.show.name)}.#{number}"
+    {found, 0} = System.cmd("find", ["-iname", "#{full_name}*"], [cd: @download_folder])
 
-    case Rarbg.get("?get_token=get_token") do
-      {:ok, %HTTPoison.Response{body: body}} ->
-        :timer.sleep(2000)
-        token = Poison.decode!(body, [keys: :atoms]).token
+    if found == "" do
+      :timer.sleep(2000)
+      case Rarbg.get("?get_token=get_token") do
+        {:ok, %HTTPoison.Response{body: body}} ->
+          :timer.sleep(2000)
+          token = Poison.decode!(body, [keys: :atoms]).token
 
-        case Rarbg.get("?sort=seeders&mode=search&search_tvdb=#{episode.show.id}&token=#{token}&search_string=#{number}") do
-          {:ok, %HTTPoison.Response{body: body}} ->
-            torrents = Poison.decode!(body, [keys: :atoms])[:torrent_results]
-            {full_name, get_best_torrent(torrents)[:download]}
-          _ -> nil
-        end
-      _ -> nil
+          case Rarbg.get("?sort=seeders&mode=search&search_tvdb=#{episode.show.id}&token=#{token}&search_string=#{number}") do
+            {:ok, %HTTPoison.Response{body: body}} ->
+              torrents = Poison.decode!(body, [keys: :atoms])[:torrent_results]
+              {:ok, get_best_torrent(torrents)[:download]}
+            _ -> nil
+          end
+        _ -> nil
+      end
     end
   end
 
@@ -62,7 +67,7 @@ defmodule Imlazy.ApiIntegration do
   def get_best_torrent(torrents) do
     grouped = Enum.group_by(torrents, &get_torrent_quality/1)
     cond do
-      length(grouped["1080p"] || []) > 0 -> List.first(grouped["1080p"])
+      # length(grouped["1080p"] || []) > 0 -> List.first(grouped["1080p"])
       length(grouped["720p"] || []) > 0 -> List.first(grouped["720p"])
       true ->  List.first(grouped["HD"] || [])
     end
@@ -70,6 +75,6 @@ defmodule Imlazy.ApiIntegration do
 
   def dotify(string) do
     String.replace(string, " ", ".")
-    |> String.replace("'", "")
+    |> String.replace(~r/[^A-Za-z0-9.]/, "")
   end
 end
