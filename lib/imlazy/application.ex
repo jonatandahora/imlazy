@@ -12,6 +12,7 @@ defmodule Imlazy.Application do
       supervisor(Imlazy.Repo, []),
       # Start the endpoint when the application starts
       supervisor(Imlazy.Web.Endpoint, []),
+      worker(Imlazy.Scheduler, [])
       # Start your own worker by calling: Imlazy.Worker.start_link(arg1, arg2, arg3)
       # worker(Imlazy.Worker, [arg1, arg2, arg3]),
     ]

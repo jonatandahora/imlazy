@@ -38,11 +38,10 @@ defmodule Imlazy.Mixfile do
      {:gettext, "~> 0.11"},
      {:cowboy, "~> 1.0"},
      {:httpoison, "~> 0.11.0"},
-     {:quantum, "~> 1.9"},
+     {:quantum, "~> 2.2"},
      {:timex, "~> 3.0"},
      {:parallel_stream, "~> 1.0.5"},
-     {:distillery, "~> 1.5", runtime: false},
-     {:crontab, "~> 1.0"}]
+     {:distillery, "~> 1.5", runtime: false}]
   end
 
   # Aliases are shortcuts or tasks specific to the current project.
